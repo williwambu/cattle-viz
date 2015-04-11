@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Cattle Viz</title>
-
     <script type="application/javascript" src="js/angular.js"></script>
     <script type="application/javascript" src="js/angular-animate.js"></script>
     <script type="application/javascript" src="js/jquery.min.js"></script>
@@ -12,48 +12,44 @@
     <link rel="stylesheet" href="css/bootstrap.css">
     <link rel="stylesheet" href="css/styles.css">
 </head>
+
 <body>
-<div class="page-wrapper container" ng-app="app" ng-controller="menuCtrl">
-    <div class="row">
-        <div class="header">Interactive Visualization<span class="header-span"></span></div>
-        <div class="col-md-2 col-md-offset-1">
-            <div class="key-head">Key:</div>
-            <p><div class="for-active key clear-right"></div> With Counties</p>
-            <p><div class="for-inactive key clear-right"></div> Without Counties</p>
-        </div>
-        <div class="alphabets col-md-8 ">
-            <a href="" ng-repeat="alphabet in alpha_data" ng-class="itemClass(alphabet)"
-               class="top-menu animated rotateIn fadeIn" ng-click="changeLetter($index)"
-               ng-model="letter">
+    <div class="page-wrapper container" ng-app="app" ng-controller="menuCtrl">
+        <div class="row">
+            <div class="header">Interactive Visualization<span class="header-span"></span></div>
+            <div class="col-md-2 col-md-offset-1">
+                <div class="key-head">Key:</div>
+                <p>
+                    <div class="for-active key clear-right"></div> With Counties</p>
+                <p>
+                    <div class="for-inactive key clear-right"></div> Without Counties</p>
+            </div>
+            <div class="alphabets col-md-8 ">
+                <a href="" ng-repeat="alphabet in alpha_data" ng-class="itemClass(alphabet)" class="top-menu animated rotateIn fadeIn" ng-click="changeLetter($index)" ng-model="letter">
                 {{alphabet.item}}
             </a>
+            </div>
+        </div>
+        <div class="row">
+            <div id="menu" class="col-md-1">
+                <ul>Counties
+                    <li ng-repeat="county in counties | startsWithLetter : letter" ng-click="updatePie($event)" data="{{county}}" class="animated fadeIn">{{county}}
+                    </li>
+                </ul>
+            </div>
+            <div id="pieChart" class="col-md-4">
+            </div>
+            <div id="chart">
+            </div>
         </div>
     </div>
-    <div class="row">
-        <div id="menu" class="col-md-1">
-            <ul>Counties
-                <li ng-repeat="county in counties | startsWithLetter : letter" ng-click="updatePie($event)"
-                    data="{{county}}" class="animated fadeIn">{{county}}
-                </li>
-            </ul>
-        </div>
-        <div id="pieChart" class="col-md-4">
-
-        </div>
-
-
-        <div id="chart">
-
-        </div>
-    </div>
-</div>
-<script>
-    $(document).ready(function () {
-        $('.inactive-item').click(function (e) {
+    <script>
+    $(document).ready(function() {
+        $('.inactive-item').click(function(e) {
             e.preventDefault();
         });
     });
-</script>
-
+    </script>
 </body>
+
 </html>
