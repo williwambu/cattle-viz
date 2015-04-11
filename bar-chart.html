@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bar chart</title>
+    <script type="application/javascript" src="js/jquery.min.js"></script>
+    <script type="application/javascript" src="js/d3.min.js"></script>
+ <style>
+   .text{
+       font:"Helvetica, sans-serif";
+   }
+   #chart{
+       float: right;
+       position: relative;
+       right:200px;
+   }
+   #pie{
+       float: left;
+       position: relative;
+       left:300px;
+   }
+   .rect:hover{
+       fill:#64707D;
+   }
+ </style>
+</head>
+<body>
+<!-- contains the d3 chart -->
+<div id="chart">
+
+</div>
+<div id="pie">
+
+</div>
+
+<script>
+    data = [];
+    text = [];
+    $(document).ready(
+            function(){
+                $.ajax({
+                    type: "GET",
+                    url: "https://api.github.com/repos/trustly/bankapi/contributors",
+                  //  dataType: "JSON",
+                    error: function(error){
+                       console.log("An error occurred " + error);
+                    },
+                    success: function (response){
+                       for( var i = 0; i < response.length; i++){
+                           data.push(response[i].contributions);
+                           text.push(response[i].login);
+                       }
+                        console.log(data);
+                        console.log(text);
+                        drawChart(data,text);
+                        drawDonutPie(data,text);
+                    }
+
+                });
+
+            }
+    );
+    function drawChart(data,text){
+
+        //var data = [4, 8, 15, 16, 23, 42, 63,56,30 ,76];
+        //  var chart = d3.select(".chart");
+        //var margin
+        var width = 500;
+        var bottom_height = 30;
+        var margin = 20;
+        var height = 300;
+        var padding = 5;
+        var color = d3.scale.category10();
+
+        //setting the x axis scale
+        var xScale = d3.scale.linear()
+                .domain([0,data.length])
+                .range([0,width]);
+
+        // setting the y axis scale
+        var yScale = d3.scale.linear()
+                .range([height,0])
+                .domain([0,d3.max(data,function(d){return d;})]);
+
+        var svg = d3.select("#chart")
+                .append("svg")
+                .attr("width", width)
+                .attr("height" ,height + bottom_height +10 ); // add 10 to give space for the labels
+
+       var bars =  svg.selectAll("rect")
+                .data(data)
+                .enter()
+                .append("rect")
+                .attr("x", function(d,i){ return xScale(i); })
+                .attr("y", function(d){ return yScale(d); })
+                .attr("width" ,width/data.length - padding )
+                .attr("height",function(d){ return height - yScale(d); })
+                .attr("fill" , function(d,i){ return color(i); } )
+                .attr("class", "rect");
+
+        svg.selectAll("text")
+                .data(text)
+                .enter()
+                .append("text")
+                .text( function(d){ return d.toLowerCase(); } )
+                .attr("x" , function(d,i){ return i*(width/text.length) + 10; })
+                .attr("y",height+bottom_height)
+                .attr("class" , "text")
+               // .attr("text-anchor" , "middle")
+                .attr("color","grey");
+
+        svg.selectAll("text")
+                .data(data)
+                .enter()
+                .append("text")
+                .text( function(d){ return d; } )
+                .attr("x" , function(d,i){ return i*(width/data.length); })
+                .attr("y" , function(d){ return height - yScale(d) - 5; })
+                .attr("class" , "text");
+               // .attr("text-anchor" , "middle")
+
+
+    }
+
+
+    function drawDonutPie(data , text){
+        var height = 300,
+            width = 300,
+            radius = Math.min(width , height)/2;
+
+        var color = d3.scale.category20();
+
+        var pie = d3.layout.pie();
+
+        var arc = d3.svg.arc()
+                .innerRadius(radius - 100)
+                .outerRadius(radius - 50);
+
+        var svg = d3.select("#pie")
+                .append("svg")
+                .attr("height" , height)
+                .attr("width" , width)
+                .append("g")  // create a group of svg elements
+                .attr("transform" , "translate(" + width/2 + "," + height/2 + ")");
+        var path = svg.selectAll("path")
+                .data(pie(data))
+                .enter()
+                .append("path")
+                .attr("fill" ,function(d , i){ return color(i); })
+                .attr("d" , arc);
+    }
+    function up(){
+        drawDonutPie(data , text);
+    }
+</script>
+</body>
+</html>
