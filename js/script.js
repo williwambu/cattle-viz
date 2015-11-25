@@ -147,16 +147,6 @@ function districtData(data, district) {
     return district_data;
 }
 
-function allCountyDistricts(data) {
-    var district_data = [];
-    data.forEach(
-        function (element) {
-            district_data.push(element);
-        }
-    );
-
-    return district_data;
-}
 /*
  * create an array to use for the
  * pie chart (Donut Chart)
