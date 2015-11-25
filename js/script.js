@@ -28,15 +28,14 @@ app.controller('menuCtrl', function ($scope, $http) {
             };
 
             drawChart(filterCattle(districtData(countiesData(response, "baringo"), "baringo")));
-            drawDonutPie(countyStat(countiesData(response, "baringo")),
-                    countyStat2(countiesData(response, "baringo")), "baringo");
+            drawDonutPie(countyStat(countiesData(response, "baringo")), countyStat2(countiesData(response, "baringo")), "baringo");
 
             $scope.updatePie = function ($event) {
                 var county = $event.target.attributes.data.value;
                 var county_data = countiesData(response, county);
 
                 $("#pieChart").empty();
-                drawDonutPie(countyStat(county_data), countyStat2(county_data), county_data, county);
+                drawDonutPie(countyStat(county_data), countyStat2(county_data), county_data);
             };
             $scope.itemClass = function (alphabet) {
                 if (alphabet.active) {
@@ -153,48 +152,44 @@ function districtData(data, district) {
  * @param data is value returned by districtData function above
  */
 function filterCattle(data) {
-    var final =
-        [
-            {
-                "category": "cattle",
-                "measure": data["Cattle"]
-            },
-            {
-                "category": "sheep",
-                "measure": data["Sheep"]
-            },
-            {
-                "category": "goats",
-                measure: data["Goats"]
-            },
-            {
-                "category": "camels",
-                "measure": data["Camels"]
-            },
-            {
-                "category": "donkeys",
-                "measure": data["Donkeys"]
-            },
-            {
-                "category": "pigs",
-                "measure": data["Pigs"]
-            },
-            {
-                "category": "i. chicken",
-                "measure": data["Indigenous Chicken"]
-            },
-            {
-                "category": "c. chicken",
-                "measure": data["Chicken Commercial"]
-            },
-            {
-                "category": "bee hives",
-                "measure": data["Bee Hives"]
-            }
-        ];
-
-
-    return final;
+    return [
+                {
+                    "category": "cattle",
+                    "measure": data["Cattle"]
+                },
+                {
+                    "category": "sheep",
+                    "measure": data["Sheep"]
+                },
+                {
+                    "category": "goats",
+                    measure: data["Goats"]
+                },
+                {
+                    "category": "camels",
+                    "measure": data["Camels"]
+                },
+                {
+                    "category": "donkeys",
+                    "measure": data["Donkeys"]
+                },
+                {
+                    "category": "pigs",
+                    "measure": data["Pigs"]
+                },
+                {
+                    "category": "i. chicken",
+                    "measure": data["Indigenous Chicken"]
+                },
+                {
+                    "category": "c. chicken",
+                    "measure": data["Chicken Commercial"]
+                },
+                {
+                    "category": "bee hives",
+                    "measure": data["Bee Hives"]
+                }
+            ];
 }
 /*
  * calculates the total animals in a district
@@ -346,7 +341,7 @@ function drawChart(data) {
         .text("");
 }
 
-function updateChart(data, color, district) {
+function updateChart(data, district) {
     var width = 620;
     var bottom_height = 10;
     var margin = 10;
@@ -370,7 +365,7 @@ function updateChart(data, color, district) {
         .attr("width", width)
         .attr("height", height + bottom_height + 10); // add 10 to give space for the labels
 
-    var bars = svg.selectAll("rect")
+    svg.selectAll("rect")
         .data(data)
         .transition().duration(1500)
         .attr("x", function (d, i) {
@@ -387,10 +382,11 @@ function updateChart(data, color, district) {
             return colorScale(i);
         })
         .attr("class", "rect");
+
     d3.select("#title").text(district);
 }
 
-function drawDonutPie(data, text, county_data, county) {
+function drawDonutPie(data, text, county_data) {
     var margin = 20;
     var height = 400 - margin,
         width = 400,
@@ -403,7 +399,8 @@ function drawDonutPie(data, text, county_data, county) {
     var arc = d3.svg.arc()
         .innerRadius(radius - 150)
         .outerRadius(radius - 20);
-    var arcFinal = d3.svg.arc()
+
+    d3.svg.arc()
         .innerRadius(radius - 130)
         .outerRadius(radius - 50);
 
@@ -437,9 +434,9 @@ function drawDonutPie(data, text, county_data, county) {
         .on("mouseover", function (d, i) {
             $(this).attr("fill", "blue");
             $(this).attr('color', 'white');
-            updateChart(filterCattle(districtData(county_data, text[i])), color(i), text[i]);
+            updateChart(filterCattle(districtData(county_data, text[i])), text[i]);
         })
-        .on("mouseout", function (d, i) {
+        .on("mouseout", function () {
             $(this).attr("opacity", 1);
         });
 
