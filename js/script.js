@@ -13,7 +13,7 @@ $(document).ready(function() {
 });
 
 app.controller('menuCtrl', function($scope, $http) {
-    $http.get('cattle.json')
+    $http.get('data/cattle.json')
         .success(function(result) {
             response = angular.fromJson(result);
             var county_array = [];
