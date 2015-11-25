@@ -1,9 +1,6 @@
 var response = '';
 var app = angular.module('app', []);
 
-function stuff() {
-    console.log($('top-menu'));
-}
 $(document).ready(function() {
     $('.menu-top').click(function(e) {
         console.log('clicked');
