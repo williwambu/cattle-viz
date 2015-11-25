@@ -1,45 +1,44 @@
 var response = '';
 var app = angular.module('app', []);
 
-$(document).ready(function() {
-    $('.menu-top').click(function(e) {
+$(document).ready(function () {
+    $('.menu-top').click(function (e) {
         console.log('clicked');
         e.preventDefault();
         $(this).addClass('active-item');
     });
 });
 
-app.controller('menuCtrl', function($scope, $http) {
+app.controller('menuCtrl', function ($scope, $http) {
     $http.get('data/cattle.json')
-        .success(function(result) {
+        .success(function (result) {
             response = angular.fromJson(result);
             var county_array = [];
             response.forEach(
-                function(element) {
+                function (element) {
                     county_array.push(element.County);
                 }
             );
 
             $scope.counties = unique(county_array);
             $scope.alphabets = 'abcdefghijklmnopqrstuvwxyz'.split('');
-            $scope.letter = 'b';
-            $scope.changeLetter = function($index) {
+            $scope.letter = 'b'; //first letter of district to select
+            $scope.changeLetter = function ($index) {
                 $scope.letter = $scope.alphabets[$index];
             };
 
             drawChart(filterCattle(districtData(countiesData(response, "baringo"), "baringo")));
-            drawDonutPie(countyStat(countiesData(response, "baringo")), countyStat2(countiesData(response, "baringo")), "baringo");
+            drawDonutPie(countyStat(countiesData(response, "baringo")),
+                    countyStat2(countiesData(response, "baringo")), "baringo");
 
-            $scope.updatePie = function($event) {
-                console.log($event);
-                console.log($event.target.attributes.data);
+            $scope.updatePie = function ($event) {
                 var county = $event.target.attributes.data.value;
                 var county_data = countiesData(response, county);
-                console.log(county_data);
+
                 $("#pieChart").empty();
                 drawDonutPie(countyStat(county_data), countyStat2(county_data), county_data, county);
             };
-            $scope.itemClass = function(alphabet) {
+            $scope.itemClass = function (alphabet) {
                 if (alphabet.active) {
                     return 'active-item';
                 } else {
@@ -49,7 +48,7 @@ app.controller('menuCtrl', function($scope, $http) {
 
             var active_letters = getFirstLetter(unique(county_array));
             var results = [];
-            $.each($scope.alphabets, function(i, item) {
+            $.each($scope.alphabets, function (i, item) {
                 var obj = '';
                 if ($.inArray(item.toUpperCase(), active_letters) != -1) {
                     obj = {
@@ -68,14 +67,14 @@ app.controller('menuCtrl', function($scope, $http) {
             console.log(results);
             $scope.alpha_data = results;
         })
-        .error(function(error) {
+        .error(function (error) {
             console.log('An error occurred' + error);
         });
 });
 
 /* starts with letter filter */
-app.filter('startsWithLetter', function() {
-    return function(counties, letter) {
+app.filter('startsWithLetter', function () {
+    return function (counties, letter) {
         var filtered = [];
 
         var letterMatch = new RegExp(letter, 'i');
@@ -107,12 +106,9 @@ function startsWith(counties, letter) {
 }
 
 
-app.filter('zeroCounties', function() {
-    return function(counties, letter) {
-        if (startsWith(counties, letter) == 0) {
-            return false;
-        }
-        return true;
+app.filter('zeroCounties', function () {
+    return function (counties, letter) {
+        startsWith(counties, letter) != 0;
     }
 });
 
@@ -122,24 +118,24 @@ app.filter('zeroCounties', function() {
  * @param county is the county we want to analyse
  */
 function countiesData(data, county) {
-        var county_data = [];
-        data.forEach(function(element) {
-            if (element.County.toLowerCase() === county.toLowerCase()) {
-                county_data.push(element);
-            }
-        });
+    var county_data = [];
+    data.forEach(function (element) {
+        if (element.County.toLowerCase() === county.toLowerCase()) {
+            county_data.push(element);
+        }
+    });
 
-        return county_data;
-    }
-    /*
-     * function to filter a counties data on basis of district
-     * @param data is value returned from calling
-     * countiesData() function
-     */
+    return county_data;
+}
+/*
+ * function to filter a counties data on basis of district
+ * @param data is value returned from calling
+ * countiesData() function
+ */
 function districtData(data, district) {
     var district_data = [];
     data.forEach(
-        function(element) {
+        function (element) {
 
             if (element.District.toLowerCase() === district.toLowerCase()) {
                 district_data = element;
@@ -152,69 +148,81 @@ function districtData(data, district) {
 }
 
 function allCountyDistricts(data) {
-        var district_data = [];
-        data.forEach(
-            function(element) {
-                district_data.push(element);
-            }
-        );
+    var district_data = [];
+    data.forEach(
+        function (element) {
+            district_data.push(element);
+        }
+    );
 
-        return district_data;
-    }
-    /*
-     * create an array to use for the
-     * pie chart (Donut Chart)
-     * @param data is value returned by districtData function above
-     */
+    return district_data;
+}
+/*
+ * create an array to use for the
+ * pie chart (Donut Chart)
+ * @param data is value returned by districtData function above
+ */
 function filterCattle(data) {
-        var final = [{
-            "category": "cattle",
-            measure: data["Cattle"]
-        }, {
-            "category": "sheep",
-            measure: data["Sheep"]
-        }, {
-            "category": "goats",
-            measure: data["Goats"]
-        }, {
-            "category": "camels",
-            measure: data["Camels"]
-        }, {
-            "category": "donkeys",
-            measure: data["Donkeys"]
-        }, {
-            "category": "pigs",
-            measure: data["Pigs"]
-        }, {
-            "category": "i. chicken",
-            measure: data["Indigenous Chicken"]
-        }, {
-            "category": "c. chicken",
-            measure: data["Chicken Commercial"]
-        }, {
-            "category": "bee hives",
-            measure: data["Bee Hives"]
-        }];
+    var final =
+        [
+            {
+                "category": "cattle",
+                "measure": data["Cattle"]
+            },
+            {
+                "category": "sheep",
+                "measure": data["Sheep"]
+            },
+            {
+                "category": "goats",
+                measure: data["Goats"]
+            },
+            {
+                "category": "camels",
+                "measure": data["Camels"]
+            },
+            {
+                "category": "donkeys",
+                "measure": data["Donkeys"]
+            },
+            {
+                "category": "pigs",
+                "measure": data["Pigs"]
+            },
+            {
+                "category": "i. chicken",
+                "measure": data["Indigenous Chicken"]
+            },
+            {
+                "category": "c. chicken",
+                "measure": data["Chicken Commercial"]
+            },
+            {
+                "category": "bee hives",
+                "measure": data["Bee Hives"]
+            }
+        ];
 
-        return final;
-    }
-    /*
-     * calculates the total animals in a district
-     */
+
+    return final;
+}
+/*
+ * calculates the total animals in a district
+ */
 function calculateTotal(data) {
-        var total = 0;
-        data.forEach(function(element) {
-            total = total + parseInt(element.measure);
-        });
+    var total = 0;
+    data.forEach(function (element) {
+        total = total + parseInt(element.measure);
+    });
 
-        return total;
-    }
-    /*
-     * returns an array of objects with district name and totals for each district
-     */
+    return total;
+}
+/*
+ * returns an array of objects with district name and totals for each district
+ */
 function countyStat(countyData) {
     var final_array = [];
-    countyData.forEach(function(district) {
+    countyData.forEach(function (district) {
         var a_district = filterCattle(district);
         var total = calculateTotal(a_district);
         final_array.push(total);
@@ -224,7 +232,7 @@ function countyStat(countyData) {
 
 function countyStat2(countyData) {
     var final_array = [];
-    countyData.forEach(function(district) {
+    countyData.forEach(function (district) {
         final_array.push(district.District);
     });
     return final_array;
@@ -253,7 +261,7 @@ function drawChart(data) {
     // setting the y axis scale
     var yScale = d3.scale.linear()
         .range([height, 0])
-        .domain([0, d3.max(data, function(d) {
+        .domain([0, d3.max(data, function (d) {
             return d.measure;
         })]);
 
@@ -266,21 +274,21 @@ function drawChart(data) {
         .data(data)
         .enter()
         .append("rect")
-        .attr("x", function(d, i) {
+        .attr("x", function (d, i) {
             return xScale(i);
         })
-        .attr("y", function(d) {
+        .attr("y", function (d) {
             return yScale(d.measure);
         })
         .attr("width", width / data.length - padding)
-        .attr("height", function(d) {
+        .attr("height", function (d) {
             return height - yScale(d.measure);
         })
-        .attr("fill", function(d, i) {
+        .attr("fill", function (d, i) {
             return color(i);
         })
         .attr("class", "rect")
-        .on("mouseover", function(d) {
+        .on("mouseover", function (d) {
             var xPosition = parseFloat(d3.select(this).attr("x") + 50);
             var yPosition = parseFloat(d3.select(this).attr("y")) + 15;
             //Create the tooltip label
@@ -295,7 +303,7 @@ function drawChart(data) {
                 .attr("fill", "black")
                 .text(d.category + ": " + d.measure);
         })
-        .on("mouseout", function() {
+        .on("mouseout", function () {
             //Remove the tooltip
             d3.select("#tooltip").remove();
         });
@@ -305,10 +313,10 @@ function drawChart(data) {
         .data(data)
         .enter()
         .append("text")
-        .text(function(d) {
+        .text(function (d) {
             return d.category.toLowerCase();
         })
-        .attr("x", function(d, i) {
+        .attr("x", function (d, i) {
             return (i * (width / data.length)) + 35;
         })
         .attr("y", height + bottom_height)
@@ -317,7 +325,7 @@ function drawChart(data) {
         .attr("font-family", "Helvetica,Arial,sans-serif")
         .attr("font-size", "13px")
         .attr("font-weight", 400)
-        .attr("fill", function(d, i) {
+        .attr("fill", function (d, i) {
             return color(i);
         });
 
@@ -326,22 +334,22 @@ function drawChart(data) {
         .data(data)
         .enter()
         .append("text")
-        .text(function(d) {
+        .text(function (d) {
             return d.measure;
         })
-        .attr("x", function(d, i) {
+        .attr("x", function (d, i) {
             return i * (width / data.length);
         })
-        .attr("y", function(d) {
+        .attr("y", function (d) {
             return height - yScale(d.measure) - 5;
         })
 
-    .attr("class", "text");
+        .attr("class", "text");
 
     // .attr("text-anchor" , "middle")
     bars.selectAll("text").attr("transform", "rotate(90)");
     svg.
-    append("text")
+        append("text")
         .attr("id", "title")
         .attr("x", width / 2 - 30)
         .attr("y", margin + 10)
@@ -364,7 +372,7 @@ function updateChart(data, color, district) {
     // setting the y axis scale
     var yScale = d3.scale.linear()
         .range([height, 30])
-        .domain([0, d3.max(data, function(d) {
+        .domain([0, d3.max(data, function (d) {
             return d.measure;
         })]);
 
@@ -375,17 +383,17 @@ function updateChart(data, color, district) {
     var bars = svg.selectAll("rect")
         .data(data)
         .transition().duration(1500)
-        .attr("x", function(d, i) {
+        .attr("x", function (d, i) {
             return xScale(i);
         })
-        .attr("y", function(d) {
+        .attr("y", function (d) {
             return yScale(d.measure);
         })
         .attr("width", width / data.length - padding)
-        .attr("height", function(d) {
+        .attr("height", function (d) {
             return height - yScale(d.measure);
         })
-        .attr("fill", function(d, i) {
+        .attr("fill", function (d, i) {
             return colorScale(i);
         })
         .attr("class", "rect");
@@ -393,88 +401,88 @@ function updateChart(data, color, district) {
 }
 
 function drawDonutPie(data, text, county_data, county) {
-        var margin = 20;
-        var height = 400 - margin,
-            width = 400,
-            radius = 200;
+    var margin = 20;
+    var height = 400 - margin,
+        width = 400,
+        radius = 200;
 
-        var color = d3.scale.category20();
+    var color = d3.scale.category20();
 
-        var pie = d3.layout.pie();
+    var pie = d3.layout.pie();
 
-        var arc = d3.svg.arc()
-            .innerRadius(radius - 150)
-            .outerRadius(radius - 20);
-        var arcFinal = d3.svg.arc()
-            .innerRadius(radius - 130)
-            .outerRadius(radius - 50);
+    var arc = d3.svg.arc()
+        .innerRadius(radius - 150)
+        .outerRadius(radius - 20);
+    var arcFinal = d3.svg.arc()
+        .innerRadius(radius - 130)
+        .outerRadius(radius - 50);
 
-        var svg = d3.select("#pieChart")
-            .append("svg")
-            .attr("height", height)
-            .attr("width", width)
-            .append("g") // create a group of svg elements
-            .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+    var svg = d3.select("#pieChart")
+        .append("svg")
+        .attr("height", height)
+        .attr("width", width)
+        .append("g") // create a group of svg elements
+        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
-        var path = svg.selectAll("path")
-            .data(pie(data))
-            .enter()
-            .append("g")
-            .attr("class", "slice")
-            .append("path")
-            .attr("fill", function(d, i) {
-                return color(i);
-            })
-            .attr("d", arc)
-            .on("mouseover", function() {
-                $(this).attr('fill', 'blue');
-            })
-            .on("mouseout", function(d, i) {
-                $(this).attr("fill", function() {
-                    return color(i)
-                });
+    var path = svg.selectAll("path")
+        .data(pie(data))
+        .enter()
+        .append("g")
+        .attr("class", "slice")
+        .append("path")
+        .attr("fill", function (d, i) {
+            return color(i);
+        })
+        .attr("d", arc)
+        .on("mouseover", function () {
+            $(this).attr('fill', 'blue');
+        })
+        .on("mouseout", function (d, i) {
+            $(this).attr("fill", function () {
+                return color(i)
             });
+        });
 
-        var slice = d3.selectAll("g.slice")
-            .on("mouseover", function(d, i) {
-                $(this).attr("fill", "blue");
-                $(this).attr('color', 'white');
-                updateChart(filterCattle(districtData(county_data, text[i])), color(i), text[i]);
-            })
-            .on("mouseout", function(d, i) {
-                $(this).attr("opacity", 1);
-            });
+    var slice = d3.selectAll("g.slice")
+        .on("mouseover", function (d, i) {
+            $(this).attr("fill", "blue");
+            $(this).attr('color', 'white');
+            updateChart(filterCattle(districtData(county_data, text[i])), color(i), text[i]);
+        })
+        .on("mouseout", function (d, i) {
+            $(this).attr("opacity", 1);
+        });
 
 
-        slice.append("g")
-            .attr("class", "label")
-            .append("text")
-            .attr("transform", function(d) {
-                return "translate(" + arc.centroid(d) + ")rotate(" + angle(d, -90, 90) + ")";
-            })
-            .attr("text-anchor", "middle")
-            .text(function(d, i) {
-                return text[i];
-            })
-            .attr("font-family", "Helvetica,Arial,sans-serif")
-            .attr("font-size", "16px")
-            .attr("font-weight", 600)
-            .attr("fill", "black");
-        // function to rotate the text
-        function angle(d, offset, threshold) {
-            var a = (d.startAngle + d.endAngle) * 90 / Math.PI + offset;
-            return a > threshold ? a - 180 : a;
-        }
-
+    slice.append("g")
+        .attr("class", "label")
+        .append("text")
+        .attr("transform", function (d) {
+            return "translate(" + arc.centroid(d) + ")rotate(" + angle(d, -90, 90) + ")";
+        })
+        .attr("text-anchor", "middle")
+        .text(function (d, i) {
+            return text[i];
+        })
+        .attr("font-family", "Helvetica,Arial,sans-serif")
+        .attr("font-size", "16px")
+        .attr("font-weight", 600)
+        .attr("fill", "black");
+    // function to rotate the text
+    function angle(d, offset, threshold) {
+        var a = (d.startAngle + d.endAngle) * 90 / Math.PI + offset;
+        return a > threshold ? a - 180 : a;
     }
-    /*
-     * Return a unique array of elements
-     * Intended to filter redundant data from cattle.json
-     * and avoid duplicates in the menu list
-     */
+
+}
+/*
+ * Return a unique array of elements
+ * Intended to filter redundant data from cattle.json
+ * and avoid duplicates in the menu list
+ */
 function unique(list) {
     var result = [];
-    $.each(list, function(i, e) {
+    $.each(list, function (i, e) {
         if ($.inArray(e, result) == -1) result.push(e);
     });
     return result;
@@ -502,10 +510,10 @@ function getText() {
         url: "cattle.txt",
         type: "GET",
         data: "text",
-        error: function(error) {
+        error: function (error) {
             console.log(error);
         },
-        success: function(response) {
+        success: function (response) {
             console.log($.parseJSON(response));
         }
     });
@@ -515,7 +523,7 @@ getText();
 function getFirstLetter(names) {
     var letters = [];
     console.log(names);
-    $.each(names, function(i, name) {
+    $.each(names, function (i, name) {
         var letter = name.substring(0, 1);
         letters.push(letter);
     });
