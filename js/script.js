@@ -227,10 +227,6 @@ function countyStat2(countyData) {
  * @param data county data for drawing the graph
  */
 function drawChart(data) {
-
-    //var data = [4, 8, 15, 16, 23, 42, 63,56,30 ,76];
-    //  var chart = d3.select(".chart");
-    //var margin
     var width = 620;
     var bottom_height = 15;
     var margin = 10;
