@@ -37,7 +37,7 @@ app.controller('menuCtrl', function ($scope, $http) {
             var active_letters = getFirstLetter(unique(county_array));
             var results = [];
             $.each($scope.alphabets, function (i, item) {
-                var obj = '';
+                var obj = {};
                 if ($.inArray(item.toUpperCase(), active_letters) != -1) {
                     obj = {
                         "item": item,
@@ -52,7 +52,6 @@ app.controller('menuCtrl', function ($scope, $http) {
                     results.push(obj);
                 }
             });
-            console.log(results);
             $scope.alpha_data = results;
         })
         .error(function (error) {

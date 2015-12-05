@@ -15,8 +15,6 @@ body{
     top: -400px;*/
 }
 
-#chart {
-}
 
 #menu {
     width: 200px;
@@ -36,6 +34,7 @@ body{
     padding: 5px;
     margin: 1px;
     text-align: center;
+    animation-duration: 3s;
     -webkit-animation-duration: 3s;
     -moz-animation-duration: 3s;
     -o-animation-duration: 3s;
@@ -152,4 +151,7 @@ body{
     background-color: dodgerblue;
     color: dodgerblue;
     display: inline-block;
+}
+.selected{
+    background-color: orangered;
 }
